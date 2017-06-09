@@ -5,8 +5,10 @@ const PORT = 3000;
 var logger = require('morgan');
 var waypoints = require('./waypoints');
 var PF = require('pathfinding');
-var dt = require('./decision-tree');
-var nt = require('./neural-network');
+var brain = require('brain');
+var getItemName = require('./getItemName');
+var matrix = require('./matrix');
+var getPath = require('./getPath');
 
 app.use(function(req, res, next) {
   res.header('Access-Control-Allow-Origin', '*');
@@ -19,145 +21,51 @@ app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
 
-var matrix = [
-    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-    [1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1],
-    [1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1],
-    [1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1],
-    [1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1],
-    [1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1],
-    [1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
-];
+app.get('/brain', function (req, res) {
+  var net = new brain.NeuralNetwork();
 
-app.get('/neural', function(req, res) {
-  function convertFruitToBinaryArray(text) {
+  /*
+    1 - truskawki
+    2 - jablka
+    3 - banany
+    4 - winogrona
+    5 - gruszki
+  */
+  net.train([
+            //   {input: { truskawki: 0, jablka: 0, banany: 0, winogrona: 0, gruszki: 0 }, output: { 1: 1 }},
+            //   {input: { truskawki: 0, jablka: 0, banany: 0, winogrona: 0, gruszki: 0 }, output: { 2: 1 }},
+            //   {input: { truskawki: 0, jablka: 0, banany: 0, winogrona: 0, gruszki: 0 }, output: { 3: 1 }},
+            //   {input: { truskawki: 0, jablka: 0, banany: 0, winogrona: 0, gruszki: 0 }, output: { 4: 1 }},
+            //   {input: { truskawki: 0, jablka: 0, banany: 0, winogrona: 0, gruszki: 0 }, output: { 5: 1 }},
+            //
+            //  {input: { truskawki: 1, jablka: 0, banany: 0, winogrona: 0, gruszki: 0 }, output: { 1: 1 }},
+            //  {input: { truskawki: 0, jablka: 0, banany: 1, winogrona: 0, gruszki: 0 }, output: { 1: 1 }},
+            // //  {input: {truskawki: 0, jablka: 1, banany: 0, winogrona: 0, gruszki: 0 }, output: { 2: 1 }},
+            //  {input: { truskawki: 0, jablka: 0, banany: 1, winogrona: 0, gruszki: 0 }, output: { 3: 1 }},
+            // //  {input: { truskawki: 0, jablka: 0, banany: 0, winogrona: 1, gruszki: 0 }, output: { 4: 1 }},
+            // //  {input: {truskawki: 0, jablka: 0, banany: 0, winogrona: 0, gruszki: 1 }, output: { 5: 1 }}
 
-    if(text == "TRUSKAWKI") {
-      return [0, 0, 0, 0, 1];
-    }
-    if(text == "JABLKA") {
-      return [0, 0, 0, 1, 0];
-    }
-    if(text == "BANANY") {
-      return [0, 0, 1, 0, 0];
-    }
-    if(text == "WINOGRONA") {
-      return [0, 1, 0, 0, 0];
-    }
-    if(text == "GRUSZKI") {
-      return [1, 0, 0, 0, 0];
-    }
-  }
+           ],{
+      errorThresh: 0.005,  // error threshold to reach
+      iterations: 20000,   // maximum training iterations
+      log: true,           // console.log() progress periodically
+      logPeriod: 10,       // number of iterations between logging
+      learningRate: 0.3    // learning rate
+});
 
-  var trainingData = [];
-  trainingData.push({ input: convertFruitToBinaryArray("TRUSKAWKI"), output: [0,0,0,0,1] });
-  trainingData.push({ input: convertFruitToBinaryArray("JABLKA"), output: [0,0,0, 1, 0] });
-  trainingData.push({ input: convertFruitToBinaryArray("BANANY"), output: [0,0,1,0,0] });
-  trainingData.push({ input: convertFruitToBinaryArray("WINOGRONA"), output: [0,1,0,0,0] });
-  trainingData.push({ input: convertFruitToBinaryArray("GRUSZKI"), output: [1,0,0,0,0]});
+  // var output = net.run({ truskawki: 0, jablka: 0, banany: 1, winogrona: 0, gruszki: 0 });  // { white: 0.99, black: 0.002 }
+  var output = net.run({ item:[0,0,1,0,0] });  // { white: 0.99, black: 0.002 }
 
-console.log(trainingData);
-  nt(trainingData, "TRUSKAWKI");
-
-  res.send('hi');
+  res.send(output);
 });
 
 app.get('/tree', function (req, res) {
-
-  // Training set
-  var data =
-      [{person: 'Homer', hairLength: 0, weight: 250, age: 36, sex: 'male'},
-       {person: 'Marge', hairLength: 10, weight: 150, age: 34, sex: 'female'},
-       {person: 'Bart', hairLength: 2, weight: 90, age: 10, sex: 'male'},
-       {person: 'Lisa', hairLength: 6, weight: 78, age: 8, sex: 'female'},
-       {person: 'Maggie', hairLength: 4, weight: 20, age: 1, sex: 'female'},
-       {person: 'Abe', hairLength: 1, weight: 170, age: 70, sex: 'male'},
-       {person: 'Selma', hairLength: 8, weight: 160, age: 41, sex: 'female'},
-       {person: 'Otto', hairLength: 10, weight: 180, age: 38, sex: 'male'},
-       {person: 'Krusty', hairLength: 6, weight: 200, age: 45, sex: 'male'}];
-
-/*
-  NAME: [
-    FRUITS: apple, lemon, banana, grape, strawberry, raspberry, peach, watermelon, coconout, orange
-    VEGETABLES: cucumber, onion, garlic, carrot, cabbage, radish, pepper, broccoli, potato, pumpkin, mushroom
-  ]
-  COLOR: green, red, yellow, orange, black, brown, white,
-  SIZE: small, medium, big
-  TYPE: fruit, vegetable
-  HARDNESS: soft, medium, hard
-*/
-
-  var fruits =
-  [
-    {name: 'apple', color: 'green', size: 'medium', type: 'fruit', hardness: 'medium'},
-    {name: 'apple', color: 'red', size: 'medium', type: 'fruit', hardness: 'medium'},
-
-    // {name: 'lemon', color: 'yellow', size: 'medium', type: 'fruit', hardness: 'medium'},
-
-    {name: 'banana', color: 'yellow', size: 'medium', type: 'fruit', hardness: 'medium'},
-
-    {name: 'grape', color: 'yellow', size: 'medium', type: 'fruit', hardness: 'medium'},
-
-  ]
-
-  // Configuration
-  var config = {
-      trainingSet: data,
-      categoryAttr: 'sex',
-      ignoredAttributes: ['person']
-  };
-
-  // Building Decision Tree
-  var decisionTree = new dt.DecisionTree(config);
-
-  // Testing Decision Tree and Random Forest
-  var comic = {person: 'Comic guy', hairLength: 8, weight: 290, age: 38};
-
-  var decisionTreePrediction = decisionTree.predict(comic);
-  res.send(decisionTreePrediction);
+  var item = {color: 'red', hardness: 'soft', size: 'small'};
+  res.send(getItemName(item));
 });
 
 app.post('/path', function (req, res) {
-  var grid = new PF.Grid(matrix);
-  var finder = new PF.AStarFinder({
-    allowDiagonal: true,
-    dontCrossCorners: true
-  });
-  var gridBackup = grid.clone();
-  var path = finder.findPath(1, 8, 12, 1, grid);
-
-  var waypointPath = [];
-
-  path.forEach(elem => {
-    waypointPath.push({
-      x: elem[0]*100+100,
-      y: elem[1]*100+150
-    })
-  });
-
-  waypointPath.push({
-    wait: true,
-    fruit: 'banana'
-  });
-
-  path.forEach(elem => {
-    waypointPath.push({
-      x: elem[0]*100+100,
-      y: elem[1]*100+150
-    })
-  });
-
-  res.send(waypointPath);
+  res.send(getPath());
 })
 
 app.listen(PORT, function () {
