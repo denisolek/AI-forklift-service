@@ -1,3 +1,5 @@
+var PF = require('pathfinding');
+
 module.exports = function() {
   var grid = new PF.Grid(matrix);
   var finder = new PF.AStarFinder({
