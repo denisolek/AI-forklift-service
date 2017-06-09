@@ -1,13 +1,14 @@
 var PF = require('pathfinding');
+var paths = require('./paths');
 
-module.exports = function() {
-  var grid = new PF.Grid(matrix);
+module.exports = function(targetStock) {
+  var grid = new PF.Grid(paths.matrix);
   var finder = new PF.AStarFinder({
     allowDiagonal: true,
     dontCrossCorners: true
   });
   var gridBackup = grid.clone();
-  var path = finder.findPath(1, 8, 12, 1, grid);
+  var path = finder.findPath(1, 8, paths.coords[parseInt(targetStock)].x, paths.coords[parseInt(targetStock)].y, grid);
 
   var waypointPath = [];
 
@@ -18,9 +19,9 @@ module.exports = function() {
     })
   });
 
-  waypointPath.push({
-    wait: true,
-    fruit: 'banana'
-  });
+  // waypointPath.push({
+  //   wait: true,
+  //   fruit: 'banana'
+  // });
   return waypointPath;
 }
