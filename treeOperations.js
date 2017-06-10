@@ -11,6 +11,37 @@
 var dtDataset = require('./dtDataset');
 var dt = require('./decision-tree');
 
+function treeToHtml(tree) {
+    // only leafs containing category
+    if (tree.category) {
+        return  ['<ul>',
+                    '<li>',
+                        '<a href="#">',
+                            '<b>', tree.category, '</b>',
+                        '</a>',
+                    '</li>',
+                 '</ul>'].join('');
+    }
+
+    return  ['<ul>',
+                '<li>',
+                    '<a href="#">',
+                        '<b>', tree.attribute, ' ', tree.predicateName, ' ', tree.pivot, ' ?</b>',
+                    '</a>',
+                    '<ul>',
+                        '<li>',
+                            '<a href="#">yes</a>',
+                            treeToHtml(tree.match),
+                        '</li>',
+                        '<li>',
+                            '<a href="#">no</a>',
+                            treeToHtml(tree.notMatch),
+                        '</li>',
+                    '</ul>',
+                '</li>',
+             '</ul>'].join('');
+}
+
 function getItemName(item) {
   var config = {
       trainingSet: dtDataset,
@@ -19,7 +50,10 @@ function getItemName(item) {
   };
 
   var decisionTree = new dt.DecisionTree(config);
-  return decisionTree.predict(item);
+  return {
+      item: decisionTree.predict(item),
+      htmlTree: treeToHtml(decisionTree.root)
+  }
 };
 
 function isCorrectStock(name, stockId) {

@@ -19,14 +19,9 @@ app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
 
-
-app.post('/path', function (req, res) {
-  res.send(getPath());
-})
-
-app.post('/test', function (req, res) {
+app.post('/route', function (req, res) {
   var item = sentenceParser.getItemFromSentence(req.body.text);
-  var name = treeOperations.getItemName(item);
+  var name = treeOperations.getItemName(item)['item'];
 
   var isCorrectStock = false;
   var route = [];
@@ -40,6 +35,7 @@ app.post('/test', function (req, res) {
     console.log(mostPossibleStock['probability']);
     if (treeOperations.isCorrectStock(name, mostPossibleStock['key'])) {
       stock.addToArray(name, stock.arr.indexOf(name));
+      stock.removeFromArray(name, stock.arr.indexOf(name));
       isCorrectStock = true;
    }
 
@@ -48,7 +44,7 @@ app.post('/test', function (req, res) {
    currentPosition = mostPossibleStock['key'];
   }
   route.push({path: getPath(currentPosition, STARTING_POINT), targetStock: 'starting point'});
-  res.send({route, name});
+  res.send({route, name, htmlTree: treeOperations.getItemName(item)['htmlTree']});
 });
 
 app.listen(3000, function () {

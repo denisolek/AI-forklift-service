@@ -59,6 +59,16 @@ function addToArray(name, stockId) {
   dataArray.push({input: Object.assign(createObject(arr), {[name]: 1}), output: { [stockId]: 1 }});
 }
 
+function removeFromArray(name, stockId) {
+  var elementToRemove = dataArray.find((elem) => {
+    if(elem.input[name] === 0 && elem.output[stockId] === 1) {
+      return elem;
+    }
+  });
+  var indexRemovedElement = dataArray.indexOf(elementToRemove);
+  dataArray.splice(indexRemovedElement, 1);
+}
+
 function getMostPossible(percentages) {
   var highestValue = 0;
   var highestKey;
@@ -74,4 +84,4 @@ function getMostPossible(percentages) {
   }
 }
 
-module.exports = {getTargetStock, setDefaultDestination, createObject, addToArray, arr, getMostPossible}
+module.exports = {getTargetStock, setDefaultDestination, createObject, addToArray, arr, getMostPossible, removeFromArray}

@@ -8,7 +8,7 @@ module.exports = function(start, end) {
     dontCrossCorners: true
   });
   var gridBackup = grid.clone();
-  var path = finder.findPath(paths.coords[parseInt(start)].x, paths.coords[parseInt(start)].x, paths.coords[parseInt(end)].x, paths.coords[parseInt(end)].y, grid);
+  var path = finder.findPath(paths.coords[parseInt(start)].x, paths.coords[parseInt(start)].y, paths.coords[parseInt(end)].x, paths.coords[parseInt(end)].y, grid);
 
   var waypointPath = [];
 
