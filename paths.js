@@ -42,6 +42,7 @@ var coords = [
 	{id: 17, x: 6, y: 15},
 	{id: 18, x: 4, y: 11},
 	{id: 19, x: 2, y: 11},
+  {id: 20, x: 1, y: 8}
 ];
 
 module.exports = {matrix, coords}

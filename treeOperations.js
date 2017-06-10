@@ -14,11 +14,27 @@ var dt = require('./decision-tree');
 function getItemName(item) {
   var config = {
       trainingSet: dtDataset,
-      categoryAttr: 'name'
+      categoryAttr: 'name',
+      ignoredAttributes: ['stockId']
   };
 
   var decisionTree = new dt.DecisionTree(config);
   return decisionTree.predict(item);
 };
 
-module.exports = {getItemName}
+function isCorrectStock(name, stockId) {
+  var config = {
+    trainingSet: dtDataset,
+    categoryAttr: 'stockId',
+    ignoredAttributes: ['color', 'size', 'type', 'hardness']
+  }
+
+  var decisionTree = new dt.DecisionTree(config);
+  if (stockId == parseInt(decisionTree.predict({name: name}))) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
+module.exports = {getItemName, isCorrectStock}

@@ -22,9 +22,12 @@ var arr = [
   'mushroom',
 ];
 
-var dataArray = setDefaultDestination();
+var dataArray = [];
 
 function getTargetStock(targetItem) {
+  if (dataArray.length == 0)
+    dataArray = setDefaultDestination();
+
   var net = new brain.NeuralNetwork();
   net.train(dataArray ,{
       errorThresh: 0.005,
@@ -60,7 +63,6 @@ function getMostPossible(percentages) {
   var highestValue = 0;
   var highestKey;
   Object.keys(percentages).map(function(elem) {
-    console.log(percentages[elem]);
     if (highestValue < percentages[elem]) {
       highestValue = percentages[elem];
       highestKey = elem;
