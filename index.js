@@ -4,6 +4,7 @@ var logger = require('morgan');
 var getItemName = require('./getItemName');
 var getPath = require('./getPath');
 var stock = require('./chooseStock');
+var sentenceParser = require('./sentenceParser');
 var app = express();
 
 app.use(function(req, res, next) {
@@ -22,11 +23,17 @@ app.post('/path', function (req, res) {
 })
 
 app.post('/test', function (req, res) {
-  var item = {color: 'red', hardness: 'soft', size: 'small'};
+  var item = {color: 'green', size: 'medium', type: 'fruit', hardness: 'medium'};
   var name = getItemName(item);
   stock.addToArray(name, stock.arr.indexOf(name));
   var targetStock = stock.getMostPossible(stock.getTargetStock(name));
   res.send({path: getPath(targetStock), name});
+});
+
+app.get('/nlp', function (req, res) {
+  var sentence = 'blend 2 tbsp of big hard and red fruits';
+  console.log(sentenceParser.getItemFromSentence(sentence));
+  res.send('hi');
 });
 
 app.listen(3000, function () {
