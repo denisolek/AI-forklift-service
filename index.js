@@ -43,11 +43,11 @@ app.post('/test', function (req, res) {
    }
 
    delete targetStock[mostPossibleStock];
-   route.push({path: getPath(currentPosition, mostPossibleStock), name});
+   route.push({path: getPath(currentPosition, mostPossibleStock), targetStock: mostPossibleStock});
    currentPosition = mostPossibleStock;
   }
 
-  res.send(route);
+  res.send({route, name});
 });
 
 app.listen(3000, function () {
