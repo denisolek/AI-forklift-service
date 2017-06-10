@@ -36,14 +36,16 @@ app.post('/test', function (req, res) {
 
   while (!isCorrectStock) {
     mostPossibleStock = stock.getMostPossible(targetStock)
-    if (treeOperations.isCorrectStock(name, mostPossibleStock)) {
+    console.log(mostPossibleStock['key']);
+    console.log(mostPossibleStock['probability']);
+    if (treeOperations.isCorrectStock(name, mostPossibleStock['key'])) {
       stock.addToArray(name, stock.arr.indexOf(name));
       isCorrectStock = true;
    }
 
-   delete targetStock[mostPossibleStock];
-   route.push({path: getPath(currentPosition, mostPossibleStock), targetStock: mostPossibleStock});
-   currentPosition = mostPossibleStock;
+   delete targetStock[mostPossibleStock['key']];
+   route.push({path: getPath(currentPosition, mostPossibleStock['key']), targetStock: mostPossibleStock['key'], probability: mostPossibleStock['probability']});
+   currentPosition = mostPossibleStock['key'];
   }
   route.push({path: getPath(currentPosition, STARTING_POINT), targetStock: 'starting point'});
   res.send({route, name});

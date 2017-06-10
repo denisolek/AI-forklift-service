@@ -68,7 +68,10 @@ function getMostPossible(percentages) {
       highestKey = elem;
     }
   });
-  return highestKey;
+  return {
+    key: highestKey,
+    probability: highestValue
+  }
 }
 
 module.exports = {getTargetStock, setDefaultDestination, createObject, addToArray, arr, getMostPossible}
