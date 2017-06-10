@@ -5,6 +5,7 @@ var treeOperations = require('./treeOperations');
 var getPath = require('./getPath');
 var stock = require('./chooseStock');
 var sentenceParser = require('./sentenceParser');
+let STARTING_POINT = 20;
 var app = express();
 
 app.use(function(req, res, next) {
@@ -25,14 +26,12 @@ app.post('/path', function (req, res) {
 
 app.post('/test', function (req, res) {
   var item = sentenceParser.getItemFromSentence(req.body.text);
-  console.log(item);
   var name = treeOperations.getItemName(item);
-  console.log(name);
 
   var isCorrectStock = false;
   var route = [];
   var targetStock = stock.getTargetStock(name);
-  var currentPosition = 20;
+  var currentPosition = STARTING_POINT;
   var mostPossibleStock;
 
   while (!isCorrectStock) {
@@ -46,7 +45,7 @@ app.post('/test', function (req, res) {
    route.push({path: getPath(currentPosition, mostPossibleStock), targetStock: mostPossibleStock});
    currentPosition = mostPossibleStock;
   }
-
+  route.push({path: getPath(currentPosition, STARTING_POINT), targetStock: 'starting point'});
   res.send({route, name});
 });
 
