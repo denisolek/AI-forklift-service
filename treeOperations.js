@@ -11,7 +11,7 @@
 var dtDataset = require('./dtDataset');
 var dt = require('./decision-tree');
 
-module.exports = function(item) {
+function getItemName(item) {
   var config = {
       trainingSet: dtDataset,
       categoryAttr: 'name'
@@ -20,3 +20,5 @@ module.exports = function(item) {
   var decisionTree = new dt.DecisionTree(config);
   return decisionTree.predict(item);
 };
+
+module.exports = {getItemName}

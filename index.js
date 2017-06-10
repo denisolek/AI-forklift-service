@@ -1,7 +1,7 @@
 var express = require('express');
 var bodyParser = require('body-parser');
 var logger = require('morgan');
-var getItemName = require('./getItemName');
+var treeOperations = require('./treeOperations');
 var getPath = require('./getPath');
 var stock = require('./chooseStock');
 var sentenceParser = require('./sentenceParser');
@@ -24,7 +24,7 @@ app.post('/path', function (req, res) {
 
 app.post('/test', function (req, res) {
   var item = sentenceParser.getItemFromSentence(req.body.text);
-  var name = getItemName(item);
+  var name = treeOperations.getItemName(item);
   console.log(name);
   stock.addToArray(name, stock.arr.indexOf(name));
   var targetStock = stock.getMostPossible(stock.getTargetStock(name));
