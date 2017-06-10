@@ -1,7 +1,7 @@
 var PF = require('pathfinding');
 var paths = require('./paths');
 
-function getPath(targetStock) {
+module.exports = function(targetStock) {
   var grid = new PF.Grid(paths.matrix);
   var finder = new PF.AStarFinder({
     allowDiagonal: true,
@@ -18,7 +18,6 @@ function getPath(targetStock) {
       y: elem[1]*100+150
     })
   });
+
   return waypointPath;
 }
-
-module.exports = {getPath}

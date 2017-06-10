@@ -2,7 +2,7 @@ var express = require('express');
 var bodyParser = require('body-parser');
 var logger = require('morgan');
 var getItemName = require('./getItemName');
-var treeOperations = require('./treeOperations');
+var getPath = require('./getPath');
 var stock = require('./chooseStock');
 var sentenceParser = require('./sentenceParser');
 var app = express();
@@ -19,15 +19,17 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
 
 app.post('/path', function (req, res) {
-  res.send(treeOperations.getPath());
+  res.send(getPath());
 })
 
 app.post('/test', function (req, res) {
   var item = sentenceParser.getItemFromSentence(req.body.text);
   var name = getItemName(item);
+  console.log(name);
   stock.addToArray(name, stock.arr.indexOf(name));
   var targetStock = stock.getMostPossible(stock.getTargetStock(name));
-  res.send({path: treeOperations.getPath(targetStock), name});
+  console.log(targetStock);
+  res.send({path: getPath(targetStock), name});
 });
 
 app.listen(3000, function () {
